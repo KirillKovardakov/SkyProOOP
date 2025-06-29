@@ -3,31 +3,63 @@ from src.main import Product, Category
 
 
 @pytest.fixture
-def fixture_product_apple():
+def fixture_product():
     """Фикстура которая возвращает объект класса Product"""
-    return Product("apple", "desc1", 5, 10)
+    return Product("Samsung Galaxy S23 Ultra", "256GB, Серый цвет, 200MP камера", 180000.0, 5)
 
 
 @pytest.fixture
 def fixture_category():
     """Фикстура которая возвращает объект класса Category"""
-    pr1 = Product("яблоко", "desc1", 5, 10)
-    pr2 = Product("grusha", "desc1", 4, 15)
-    pr3 = Product("apelsin", "desc1", 6, 6)
-    return Category("fruits", "test_fruits", [pr1, pr2, pr3])
+    product1 = Product("Samsung Galaxy S23 Ultra", "256GB, Серый цвет, 200MP камера", 180000.0, 5)
+    product2 = Product("Iphone 15", "512GB, Gray space", 210000.0, 8)
+    product3 = Product("Xiaomi Redmi Note 11", "1024GB, Синий", 31000.0, 14)
+    return Category(
+        "Смартфоны",
+        "Смартфоны, как средство не только коммуникации, но и получения дополнительных функций для удобства жизни",
+        [product1, product2, product3]
+    )
 
 
-def test_product(fixture_product_apple):
+def test_product(fixture_product):
     """тестируем класс Product"""
-    assert fixture_product_apple.name == "apple"
-    assert fixture_product_apple.description == "desc1"
-    assert fixture_product_apple.price == 5
-    assert fixture_product_apple.quantity == 10
+    product1 = fixture_product
+    assert product1.name == "Samsung Galaxy S23 Ultra"
+    assert product1.description == "256GB, Серый цвет, 200MP камера"
+    assert product1.price == 180000.0
+    assert product1.quantity == 5
+
+
+def test_new_product(fixture_product, fixture_category):
+    category1 = fixture_category
+    new_product = Product.new_product(
+        {"name": "Samsung Galaxy S23 Ultra", "description": "256GB, Серый цвет, 200MP камера", "price": 180000.0,
+         "quantity": 15}, category1)
+    assert new_product.name == 'Samsung Galaxy S23 Ultra'
+    assert new_product.description == '256GB, Серый цвет, 200MP камера'
+    assert new_product.price == 180000.0
+    assert new_product.quantity == 20
+
+    new_product = Product.new_product(
+        {"name": "Samsung Galaxy S230 Ultra", "description": "256GB, Серый цвет, 200MP камера", "price": 380000.0,
+         "quantity": 1}, category1)
+    assert new_product.name == 'Samsung Galaxy S230 Ultra'
+    assert new_product.description == '256GB, Серый цвет, 200MP камера'
+    assert new_product.price == 380000.0
+    assert new_product.quantity == 1
 
 
 def test_category(fixture_category):
     """тестируем класс Category"""
-    assert fixture_category.name == "fruits"
-    assert fixture_category.description == "test_fruits"
-    assert fixture_category.count_category == 1
-    assert fixture_category.count_products == 3
+    category = fixture_category
+    assert category.products == ['Samsung Galaxy S23 Ultra, 180000.0 руб. Остаток:5 шт.\n',
+                                 'Iphone 15, 210000.0 руб. Остаток:8 шт.\n',
+                                 'Xiaomi Redmi Note 11, 31000.0 руб. Остаток:14 шт.\n']
+    assert category.category_count == 1
+    assert category.product_count == 3
+    product4 = Product("55\" QLED 4K", "Фоновая подсветка", 123000.0, 7)
+    category.add_product(product4)
+    assert category.products == ['Samsung Galaxy S23 Ultra, 180000.0 руб. Остаток:5 шт.\n',
+                                 'Iphone 15, 210000.0 руб. Остаток:8 шт.\n',
+                                 'Xiaomi Redmi Note 11, 31000.0 руб. Остаток:14 шт.\n',
+                                 '55" QLED 4K, 123000.0 руб. Остаток:7 шт.\n']
