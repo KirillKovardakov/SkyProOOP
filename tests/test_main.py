@@ -49,17 +49,25 @@ def test_new_product(fixture_product, fixture_category):
     assert new_product.quantity == 1
 
 
+def test_product_mystical_methods(fixture_product):
+    product1 = fixture_product
+    product2 = Product("Iphone 15", "512GB, Gray space", 210000.0, 8)
+    assert str(product1) == "Samsung Galaxy S23 Ultra, 180000.0 руб. Остаток:5 шт."
+    assert product1 + product2 == 2580000.0
+
+
 def test_category(fixture_category):
     """тестируем класс Category"""
     category = fixture_category
-    assert category.products == ['Samsung Galaxy S23 Ultra, 180000.0 руб. Остаток:5 шт.\n',
-                                 'Iphone 15, 210000.0 руб. Остаток:8 шт.\n',
-                                 'Xiaomi Redmi Note 11, 31000.0 руб. Остаток:14 шт.\n']
+    assert category.products == ['Samsung Galaxy S23 Ultra, 180000.0 руб. Остаток:5 шт.',
+                                 'Iphone 15, 210000.0 руб. Остаток:8 шт.',
+                                 'Xiaomi Redmi Note 11, 31000.0 руб. Остаток:14 шт.']
     assert category.category_count == 1
     assert category.product_count == 3
     product4 = Product("55\" QLED 4K", "Фоновая подсветка", 123000.0, 7)
     category.add_product(product4)
-    assert category.products == ['Samsung Galaxy S23 Ultra, 180000.0 руб. Остаток:5 шт.\n',
-                                 'Iphone 15, 210000.0 руб. Остаток:8 шт.\n',
-                                 'Xiaomi Redmi Note 11, 31000.0 руб. Остаток:14 шт.\n',
-                                 '55" QLED 4K, 123000.0 руб. Остаток:7 шт.\n']
+    assert category.products == ['Samsung Galaxy S23 Ultra, 180000.0 руб. Остаток:5 шт.',
+                                 'Iphone 15, 210000.0 руб. Остаток:8 шт.',
+                                 'Xiaomi Redmi Note 11, 31000.0 руб. Остаток:14 шт.',
+                                 '55" QLED 4K, 123000.0 руб. Остаток:7 шт.']
+    assert str(category) == "Смартфоны, количество продуктов: 34 шт."
