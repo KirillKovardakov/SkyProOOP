@@ -63,3 +63,5 @@ def test_category(fixture_category):
                                  'Iphone 15, 210000.0 руб. Остаток:8 шт.\n',
                                  'Xiaomi Redmi Note 11, 31000.0 руб. Остаток:14 шт.\n',
                                  '55" QLED 4K, 123000.0 руб. Остаток:7 шт.\n']
+    with pytest.raises(TypeError) as exc_info:
+        category.add_product('')
