@@ -13,8 +13,15 @@ class Product:
         """Конструктор класса"""
         self.name = name
         self.description = description
-        self.price = price
+        self.__price = price
         self.quantity = quantity
+
+    def __str__(self):
+        return f'{self.name}, {self.__price} руб. Остаток:{self.quantity} шт.'
+
+    def __add__(self, other):
+        """Возвращает сумму стоимости (цена * количество) двух продуктов"""
+        return self.__price * self.quantity + other.__price * other.quantity
 
     @classmethod
     def new_product(cls, product_data: dict, category=None):
@@ -50,7 +57,7 @@ class Product:
         """Проверяет на снижение цены продукта и устанавливает новую"""
         if new_price > 0:
             if self.price > new_price:
-                user_confirm_price_reduction = input("\nConfirm the price reduction (y/n)\n") =='y'
+                user_confirm_price_reduction = input("\nConfirm the price reduction (y/n)\n") == 'y'
                 if user_confirm_price_reduction:
                     self.__price = new_price
             else:
@@ -75,6 +82,10 @@ class Category:
         self.category_count += 1
         self.product_count += len(products)
 
+    def __str__(self):
+        all_product_count_in_category = sum([product.quantity for product in self.__products])
+        return f'{self.__name}, количество продуктов: {all_product_count_in_category} шт.'
+
     def add_product(self, new_product_of_category: Optional[Product]):
         """Добавляет продукт к категории"""
         if not isinstance(new_product_of_category,Product):
@@ -85,13 +96,9 @@ class Category:
     @property
     def products(self) -> list:
         """Возвращает Список продуктов list[Формат f строки]"""
-        result = [f'{product.name}, {product.price} руб. Остаток:{product.quantity} шт.\n' for product in
-                  self.__products]
+        result = [str(product) for product in self.__products]
         return result
 
     def get_product_list(self):
         """Возвращает простой список продуктов list"""
         return self.__products
-
-
-
