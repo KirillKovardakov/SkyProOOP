@@ -1,24 +1,6 @@
 import pytest
-from src.main import Product, Category
-
-
-@pytest.fixture
-def fixture_product():
-    """Фикстура которая возвращает объект класса Product"""
-    return Product("Samsung Galaxy S23 Ultra", "256GB, Серый цвет, 200MP камера", 180000.0, 5)
-
-
-@pytest.fixture
-def fixture_category():
-    """Фикстура которая возвращает объект класса Category"""
-    product1 = Product("Samsung Galaxy S23 Ultra", "256GB, Серый цвет, 200MP камера", 180000.0, 5)
-    product2 = Product("Iphone 15", "512GB, Gray space", 210000.0, 8)
-    product3 = Product("Xiaomi Redmi Note 11", "1024GB, Синий", 31000.0, 14)
-    return Category(
-        "Смартфоны",
-        "Смартфоны, как средство не только коммуникации, но и получения дополнительных функций для удобства жизни",
-        [product1, product2, product3]
-    )
+from src.main import Product, Category, Smartphone, LawnGrass
+from unittest.mock import patch
 
 
 def test_product(fixture_product):
@@ -43,6 +25,7 @@ def test_new_product(fixture_product, fixture_category):
     new_product = Product.new_product(
         {"name": "Samsung Galaxy S230 Ultra", "description": "256GB, Серый цвет, 200MP камера", "price": 380000.0,
          "quantity": 1}, category1)
+
     assert new_product.name == 'Samsung Galaxy S230 Ultra'
     assert new_product.description == '256GB, Серый цвет, 200MP камера'
     assert new_product.price == 380000.0
@@ -71,3 +54,61 @@ def test_category(fixture_category):
                                  'Xiaomi Redmi Note 11, 31000.0 руб. Остаток:14 шт.',
                                  '55" QLED 4K, 123000.0 руб. Остаток:7 шт.']
     assert str(category) == "Смартфоны, количество продуктов: 34 шт."
+
+
+def test_smartphone(fixture_smartphone):
+    smartphone1 = fixture_smartphone
+    assert smartphone1.name == "Samsung Galaxy S23 Ultra"
+    assert smartphone1.description == "256GB, Серый цвет, 200MP камера"
+    assert smartphone1.price == 180000.0
+    assert smartphone1.quantity == 5
+    assert smartphone1.efficiency == 95.5
+    assert smartphone1.model == "S23 Ultra"
+    assert smartphone1.memory == 256
+    assert smartphone1.color == "Серый"
+
+
+def test_lawngrass(fixture_lawngrass):
+    grass1 = fixture_lawngrass
+    assert grass1.name == "Газонная трава"
+    assert grass1.description == "Элитная трава для газона"
+    assert grass1.price == 500.0
+    assert grass1.quantity == 20
+    assert grass1.country == "Россия"
+    assert grass1.germination_period == "7 дней"
+    assert grass1.color == "Зеленый"
+
+
+def test_product_add(fixture_lawngrass, fixture_smartphone):
+    smartphone1 = fixture_smartphone
+    grass1 = fixture_lawngrass
+    with pytest.raises(TypeError):
+        smartphone1 + grass1
+
+
+def test_categoty_add_product(fixture_category):
+    category1 = fixture_category
+    with pytest.raises(TypeError):
+        category1.add_product("Not a product")
+
+def test_set_price_zero_or_negative(fixture_product, capsys):
+    fixture_product.price = 0
+    captured = capsys.readouterr()
+    assert "Цена не должна быть нулевая или отрицательная" in captured.out
+    assert fixture_product.price == 180000.0
+
+    fixture_product.price = -10
+    captured = capsys.readouterr()
+    assert "Цена не должна быть нулевая или отрицательная" in captured.out
+    assert fixture_product.price == 180000.0
+
+@patch("builtins.input", return_value='y')
+def test_set_price_decrease_confirm(mock_input, fixture_product):
+    fixture_product.price = 80.0
+    assert fixture_product.price == 80.0
+
+
+@patch("builtins.input", return_value='n')
+def test_set_price_decrease_cancel(mock_input, fixture_product):
+    fixture_product.price = 90.0
+    assert fixture_product.price == 180000.0  # осталась старая цена
