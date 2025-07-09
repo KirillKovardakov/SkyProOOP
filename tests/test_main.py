@@ -30,7 +30,7 @@ def test_new_product(fixture_product, fixture_category):
     assert new_product.description == '256GB, Серый цвет, 200MP камера'
     assert new_product.price == 380000.0
     assert new_product.quantity == 1
-
+пше
 
 def test_product_mystical_methods(fixture_product):
     product1 = fixture_product
