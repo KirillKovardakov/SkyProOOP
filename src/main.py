@@ -1,29 +1,70 @@
 from typing import Optional
+from abc import ABC, abstractmethod
 
 
-class Product:
-    """Класс для определения продуктов"""
+# Миксин для логирования
+class InitLoggerMixin:
+    def __init__(self, *args, **kwargs):
+        # __repr__ используется для красивого и подробного вывода
+        print(f'Создан объект: {self.__repr__()} с args={args}, kwargs={kwargs}')
+        super().__init__(*args, **kwargs)
 
+    def __repr__(self):
+        # Подробное представление объекта для отладки
+        attrs = ', '.join(f'{k}={v!r}' for k, v in self.__dict__.items())
+        return f"<{self.__class__.__name__}({attrs})>"
+
+
+# Абстрактный базовый класс
+class BaseProduct(ABC):
     name: str
     description: str
-    __price: float = 0.0
-    quantity: int = 0
+    __price: float
+    quantity: int
 
+    @abstractmethod
     def __init__(self, name: str, description: str, price: float, quantity: int):
-        """Конструктор класса"""
         self.name = name
         self.description = description
         self.__price = price
         self.quantity = quantity
 
+    @abstractmethod
     def __str__(self) -> str:
-        return f'{self.name}, {self.__price} руб. Остаток:{self.quantity} шт.'
+        pass
+
+    @property
+    def price(self):
+        return self.__price
+
+    @price.setter
+    def price(self, new_price: float):
+        if new_price > 0:
+            if self.price > new_price:
+                user_confirm_price_reduction = input("\nConfirm the price reduction (y/n)\n") == 'y'
+                if user_confirm_price_reduction:
+                    self.__price = new_price
+            else:
+                self.__price = new_price
+        else:
+            print('Цена не должна быть нулевая или отрицательная')
+
+
+class Product(InitLoggerMixin, BaseProduct):
+    """Класс для определения продуктов"""
+
+    def __init__(self, name: str, description: str, price: float, quantity: int):
+        """Конструктор класса"""
+        super().__init__(name, description, price, quantity)
+
+    def __str__(self) -> str:
+        return f'{self.name}, {self.price} руб. Остаток:{self.quantity} шт.'
 
     def __add__(self, other) -> float:
         """Возвращает сумму стоимости (цена * количество) двух продуктов"""
         if type(self) is not type(other):
             raise TypeError(f"Нельзя складывать {type(self).__name__} и {type(other).__name__}")
-        return self.__price * self.quantity + other.__price * other.quantity
+        return self.price * self.quantity + other.price * other.quantity
 
     @classmethod
     def new_product(cls, product_data: dict, category: 'Category'):
@@ -46,23 +87,23 @@ class Product:
         category.add_product(new_prod)
         return new_prod
 
-    @property
-    def price(self):
-        """Возвращает цену"""
-        return self.__price
-
-    @price.setter
-    def price(self, new_price: float):
-        """Проверяет на снижение цены продукта и устанавливает новую"""
-        if new_price > 0:
-            if self.price > new_price:
-                user_confirm_price_reduction = input("\nConfirm the price reduction (y/n)\n") == 'y'
-                if user_confirm_price_reduction:
-                    self.__price = new_price
-            else:
-                self.__price = new_price
-        else:
-            print('Цена не должна быть нулевая или отрицательная')
+    # @property
+    # def price(self):
+    #     """Возвращает цену"""
+    #     return self.__price
+    #
+    # @price.setter
+    # def price(self, new_price: float):
+    #     """Проверяет на снижение цены продукта и устанавливает новую"""
+    #     if new_price > 0:
+    #         if self.price > new_price:
+    #             user_confirm_price_reduction = input("\nConfirm the price reduction (y/n)\n") == 'y'
+    #             if user_confirm_price_reduction:
+    #                 self.__price = new_price
+    #         else:
+    #             self.__price = new_price
+    #     else:
+    #         print('Цена не должна быть нулевая или отрицательная')
 
 
 class Smartphone(Product):
